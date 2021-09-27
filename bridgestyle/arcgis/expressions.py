@@ -1,5 +1,3 @@
-import shlex
-
 # For now, this is limited to compound labels using the python or VB syntax
 def convertExpression(expression, tolowercase):
     if tolowercase:
