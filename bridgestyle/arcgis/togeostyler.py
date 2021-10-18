@@ -330,17 +330,18 @@ def processSymbolLayer(layer, symboltype, options):
             name = "ttf://%s#%s" % (fontFamily, hexcode)
         rotate = layer.get("rotation", 0)
         try:
-            color = processColor(layer["symbol"]["symbolLayers"][0].get("color"))
+            symbolLayers = layer["symbol"]["symbolLayers"]
+            color = _extractFillColor(symbolLayers)
+            fillOpacity = _extractFillOpacity(symbolLayers)
+            strokeOpacity = _extractStrokeOpacity(symbolLayers)
         except KeyError:
             color = "#000000"
-        try:
-            opacity = layer["symbol"]["symbolLayers"][0].get("color").get("values")[3]/100
-        except (KeyError, IndexError):
-            opacity = 1.0
+            fillOpacity = 1.0
+            strokeOpacity = 1.0
         return {
             "opacity": 1.0,
-            "fillOpacity": opacity,
-            "strokeOpacity": opacity,
+            "fillOpacity": fillOpacity,
+            "strokeOpacity": strokeOpacity,
             "rotate": rotate,
             "kind": "Mark",
             "color": color,
@@ -426,6 +427,16 @@ def _extractStroke(symbolLayers):
             return color, width
     return "#000000", 1
 
+def _extractStrokeOpacity(symbolLayers):
+    for sl in symbolLayers:
+        if sl["type"] == "CIMSolidStroke":
+            try:
+                opacity = sl["color"]["values"][3] / 100
+            except (KeyError, IndexError):
+                opacity = 1.0
+            return opacity
+    return 1.0
+
 
 def _extractFillColor(symbolLayers):
     for sl in symbolLayers:
@@ -433,6 +444,16 @@ def _extractFillColor(symbolLayers):
             color = processColor(sl.get("color"))
             return color
     return "#000000"
+
+def _extractFillOpacity(symbolLayers):
+    for sl in symbolLayers:
+        if sl["type"] == "CIMSolidFill":
+            try:
+                opacity = sl["color"]["values"][3] / 100
+            except (KeyError, IndexError):
+                opacity = 1.0
+            return opacity
+    return 1.0
 
 
 def processColor(color):
