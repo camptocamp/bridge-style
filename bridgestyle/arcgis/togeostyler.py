@@ -331,20 +331,23 @@ def processSymbolLayer(layer, symboltype, options):
         rotate = layer.get("rotation", 0)
         try:
             symbolLayers = layer["symbol"]["symbolLayers"]
-            color = _extractFillColor(symbolLayers)
+            fillColor = _extractFillColor(symbolLayers)
             fillOpacity = _extractFillOpacity(symbolLayers)
             strokeOpacity = _extractStrokeOpacity(symbolLayers)
+            strokeColor, strokeWidth = _extractStroke(symbolLayers)
         except KeyError:
-            color = "#000000"
+            fillColor = "#000000"
             fillOpacity = 1.0
-            strokeOpacity = 1.0
+            strokeOpacity = 0
+            strokeWidth = 0.0
         return {
             "opacity": 1.0,
             "fillOpacity": fillOpacity,
             "strokeOpacity": strokeOpacity,
+            "strokeWidth": strokeWidth,
             "rotate": rotate,
             "kind": "Mark",
-            "color": color,
+            "color": fillColor,
             "wellKnownName": name,
             "size": layer["size"],
             "Z": 0
@@ -425,7 +428,7 @@ def _extractStroke(symbolLayers):
             color = processColor(sl.get("color"))
             width = sl["width"]
             return color, width
-    return "#000000", 1
+    return "#000000", 0
 
 def _extractStrokeOpacity(symbolLayers):
     for sl in symbolLayers:
