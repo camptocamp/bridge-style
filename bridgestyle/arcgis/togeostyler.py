@@ -446,7 +446,7 @@ def _extractFillColor(symbolLayers):
         if sl["type"] == "CIMSolidFill":
             color = processColor(sl.get("color"))
             return color
-    return "#000000"
+    return "#ffffff"
 
 def _extractFillOpacity(symbolLayers):
     for sl in symbolLayers:
