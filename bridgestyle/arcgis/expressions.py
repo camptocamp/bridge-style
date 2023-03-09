@@ -4,7 +4,7 @@ from bridgestyle.customgeostylerproperties import WellKnownText
 
 def convertExpression(expression, engine, tolowercase):
     if engine == "Arcade":
-        expression = expression.replace("$feature.","")
+        expression = convertArcadeExpression(expression)
     if tolowercase:
         expression = expression.lower()
     if "+" in expression or "&" in expression:
@@ -106,3 +106,17 @@ def convertWhereClause(clause, tolowercase):
             return accum
 
     return clause
+
+def processRotationExpression(expression, tolowercase):
+    if "$feature" in expression:
+        field = convertArcadeExpression(expression)
+    else:
+        field = expression
+    return [
+            "Sub",
+            ["PropertyName", field.lower() if tolowercase else field],
+            90,
+        ]
+
+def convertArcadeExpression(expression):
+    return expression.replace("$feature.","")
