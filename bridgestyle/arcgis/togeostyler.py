@@ -531,7 +531,7 @@ def processSymbolLayer(layer, symboltype, options):
         }
 
     elif layer["type"] == "CIMVectorMarker":
-        if layer["size"]:
+        if layer.get("size"):
             layer["size"] = _ptToPxProp(layer, "size", 3)
         # Default values
         fillColor = "#ff0000"
@@ -549,7 +549,7 @@ def processSymbolLayer(layer, symboltype, options):
             sublayers = [sublayer for sublayer in markerGraphic["symbol"]["symbolLayers"] if sublayer["enable"]]
             fillColor = _extractFillColor(sublayers)
             strokeColor, strokeWidth = _extractStroke(sublayers)
-            size = marker.get("size", 10)
+            markerSize = marker.get("size", 10)
             if markerGraphic["symbol"]["type"] == "CIMPointSymbol":
                 wellKnownName = marker["wellKnownName"]
             elif markerGraphic["symbol"]["type"] in ["CIMLineSymbol", "CIMPolygonSymbol"]:
