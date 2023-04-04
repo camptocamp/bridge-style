@@ -370,7 +370,8 @@ def processMarkerPlacementInsidePolygon(symbolizer, markerPlacement):
     # In case of markers in a polygon fill, it seems ArcGIS does some undocumented resizing of the marker.
     # We use an empirical factor to account for this, which works in most cases (but not all)
     # Size is already in pixel.
-    size = round(symbolizer.get("size", 0) * POLYGON_FILL_RESIZE_FACTOR)
+    # Avoid null values and force them to 1 px
+    size = round(symbolizer.get("size", 0) * POLYGON_FILL_RESIZE_FACTOR) or 1
     symbolizer["size"] = size
     # We use SLD graphic-margin as top, right, bottom, left to mimic the combination of
     # ArcGIS stepX, stepY, offsetX, offsetY
@@ -383,6 +384,10 @@ def processMarkerPlacementInsidePolygon(symbolizer, markerPlacement):
         maxY = size / 2
     stepX = _ptToPxProp(markerPlacement, "stepX", 0)
     stepY = _ptToPxProp(markerPlacement, "stepY", 0)
+    if stepX < maxX:
+        stepX += maxX * 2
+    if stepY < maxY:
+        stepY += maxY * 2
     offsetX = _ptToPxProp(markerPlacement, "offsetX", 0)
     offsetY = _ptToPxProp(markerPlacement, "offsetY", 0)
     right = round(stepX / 2 - maxX - offsetX)
@@ -549,7 +554,7 @@ def processSymbolLayer(layer, symboltype, options):
             sublayers = [sublayer for sublayer in markerGraphic["symbol"]["symbolLayers"] if sublayer["enable"]]
             fillColor = _extractFillColor(sublayers)
             strokeColor, strokeWidth = _extractStroke(sublayers)
-            markerSize = marker.get("size", 10)
+            markerSize = marker.get("size", layer.get("size", 10))
             if markerGraphic["symbol"]["type"] == "CIMPointSymbol":
                 wellKnownName = marker["wellKnownName"]
             elif markerGraphic["symbol"]["type"] in ["CIMLineSymbol", "CIMPolygonSymbol"]:
